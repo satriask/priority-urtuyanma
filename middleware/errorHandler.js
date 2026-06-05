@@ -24,15 +24,15 @@ const errorHandler = (error, req, res, next) => {
 
   if (error.name === "InvalidLogin") {
     status = 400;
-    message = "Please insert your username or password (400)";
+    message = "Tolong Masukan Username dan Password anda";
   }
 
   if (error.name === "LoginError") {
     status = 401;
-    message = "Please login first (401)";
+    message = "Silahkan Masukan Username dan Password yang benar";
   }
 
-  if (error.name === "Unauthorized" || error.name === "JsonWebTokenError") {
+  if (error.name === "" || error.name === "JsonWebTokenError") {
     status = 401;
     message = "Please login first";
   }

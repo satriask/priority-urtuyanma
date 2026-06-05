@@ -9,8 +9,7 @@ class AuthController {
 
       if (!username || !password) {
         throw {
-          name: "BadRequest",
-          message: "Username dan password wajib diisi",
+          name: "InvalidLogin",
         };
       }
 
@@ -22,15 +21,13 @@ class AuthController {
 
       if (!user) {
         throw {
-          name: "Unauthorized",
-          message: "Username atau password salah",
+          name: "InvalidLogin",
         };
       }
 
       if (user.password !== password) {
         throw {
-          name: "Unauthorized",
-          message: "Username atau password salah",
+          name: "LoginError",
         };
       }
       const access_token = signToken({
@@ -38,6 +35,7 @@ class AuthController {
         username: user.userName,
         email: user.email,
       });
+      console.log("asssss");
 
       //   const access_token = jwt.sign(
       //     {
