@@ -20,4 +20,6 @@ router.post(
   SuratController.createSurat,
 );
 
+router.get("/get-surat", SuratController.getSurat);
+
 module.exports = router;
