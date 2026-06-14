@@ -21,5 +21,13 @@ router.post(
 );
 
 router.get("/get-surat", SuratController.getSurat);
+router.delete("/delete-surat/:id", SuratController.deleteSurat);
+router.put(
+  "/edit-surat/:id",
+  upload.single("fileSurat"),
+  SuratController.editSurat,
+);
+
+router.put("/edit-status-surat/:id", SuratController.updateStatusSurat);
 
 module.exports = router;

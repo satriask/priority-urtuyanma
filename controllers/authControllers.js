@@ -35,7 +35,6 @@ class AuthController {
         username: user.userName,
         email: user.email,
       });
-      console.log("asssss");
 
       //   const access_token = jwt.sign(
       //     {

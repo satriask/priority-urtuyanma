@@ -192,6 +192,169 @@ class SuratController {
       next(error);
     }
   }
+  static async deleteSurat(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      const surat = await Surat.findByPk(id);
+
+      if (!surat) {
+        return res.status(404).json({
+          message: "Surat tidak ditemukan",
+        });
+      }
+
+      // Hapus file Cloudinary
+      if (surat.fileSurat) {
+        const publicId = surat.fileSurat
+          .split("/")
+          .slice(-2)
+          .join("/")
+          .split(".")[0];
+
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      // Hapus penilaian surat terlebih dahulu
+      await PenilaianSurat.destroy({
+        where: {
+          SuratId: id,
+        },
+      });
+
+      // Hapus surat
+      await surat.destroy();
+
+      res.status(200).json({
+        message: "Surat berhasil dihapus",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async editSurat(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      const { judulSurat, nomorSurat, tanggalSurat, C1, C2, C3, C4, C5 } =
+        req.body;
+
+      const surat = await Surat.findByPk(id);
+
+      if (!surat) {
+        return res.status(404).json({
+          message: "Surat tidak ditemukan",
+        });
+      }
+
+      let fileUrl = surat.fileSurat;
+
+      // Jika upload file baru
+      if (req.file) {
+        // Hapus file lama dari Cloudinary
+        if (surat.fileSurat) {
+          const publicId = surat.fileSurat
+            .split("/")
+            .slice(-2)
+            .join("/")
+            .split(".")[0];
+
+          await cloudinary.uploader.destroy(publicId);
+        }
+
+        // Upload file baru
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: "surat",
+              resource_type: "image",
+            },
+            (error, result) => {
+              if (error) return reject(error);
+
+              resolve(result);
+            },
+          );
+
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+
+        fileUrl = result.secure_url;
+      }
+
+      // Update Surat
+      await surat.update({
+        judulSurat,
+        nomorSurat,
+        tanggalSurat,
+        fileSurat: fileUrl,
+      });
+
+      // Update Penilaian
+      await PenilaianSurat.update(
+        {
+          C1,
+          C2,
+          C3,
+          C4,
+          C5,
+        },
+        {
+          where: {
+            SuratId: surat.id,
+          },
+        },
+      );
+
+      res.status(200).json({
+        message: "Surat berhasil diubah",
+        data: surat,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async updateStatusSurat(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { statusSurat } = req.body;
+
+      console.log("pantau");
+      console.log(id);
+      console.log(statusSurat);
+      console.log("pantau");
+
+      const allowedStatus = ["1", "2", "3"];
+
+      if (!allowedStatus.includes(statusSurat)) {
+        return res.status(400).json({
+          message: "Status surat hanya boleh 1, 2, atau 3",
+        });
+      }
+
+      const surat = await Surat.findByPk(id);
+
+      if (!surat) {
+        return res.status(404).json({
+          message: "Surat tidak ditemukan",
+        });
+      }
+
+      await surat.update({
+        statusSurat,
+      });
+
+      res.status(200).json({
+        message: "Status surat berhasil diperbarui",
+        data: surat,
+      });
+    } catch (error) {
+      console.log(error);
+      console.log("error");
+
+      next(error);
+    }
+  }
 }
 
 module.exports = SuratController;
