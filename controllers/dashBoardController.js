@@ -80,7 +80,7 @@ class DashboardController {
         (i) => i.statusSurat === "1",
       ).length;
 
-      const topPriority = hasil.slice(0, 3).map((item) => ({
+      const topPriority = hasil.slice(0, 15).map((item) => ({
         nomor: item.nomorSurat,
         pengirim: item.judulSurat,
         skor: item.skor,
