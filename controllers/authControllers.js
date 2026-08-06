@@ -6,6 +6,7 @@ class AuthController {
   static async login(req, res, next) {
     try {
       const { username, password } = req.body;
+      console.log(username, password);
 
       if (!username || !password) {
         throw {
